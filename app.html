@@ -97,26 +97,44 @@
   </div>
 
   <!-- Modal Carrito -->
-  <div class="modal fade" id="carritoModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Carrito de Descuento</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+<div class="modal fade" id="carritoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Carrito de Compra</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table" id="cartTable">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Precio Unit.</th>
+              <th>Cantidad</th>
+              <th>Subtotal</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+          <tfoot>
+            <tr class="table-active">
+              <td colspan="3" class="text-end"><strong>Total a Pagar:</strong></td>
+              <td><strong id="totalPagar">$0.00</strong></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <div id="carritoVacio" class="text-center text-muted py-3" style="display:none;">
+          El carrito está vacío
         </div>
-        <div class="modal-body">
-          <table class="table" id="cartTable">
-            <thead><tr><th>Producto</th><th>Cantidad actual</th><th>Descontar</th><th></th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="modal-footer">
-          <button id="applyDiscount" class="btn btn-success">Aplicar descuentos</button>
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="applyDiscount" class="btn btn-success">Procesar Compra</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
+</div>
 
   <script src="js/view.js"></script>
   <script src="js/model.js"></script>
