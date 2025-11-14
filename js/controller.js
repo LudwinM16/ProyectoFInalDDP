@@ -1,4 +1,4 @@
-let CART = []; // {id, nombre, cantidadActual, descontar}
+let CART = []; // {id, nombre, precio, cantidadActual, descontar}
 
 document.addEventListener('DOMContentLoaded', ()=>{
 
@@ -76,8 +76,9 @@ async function initApp(){
     if(e.target.classList.contains('add-cart')){
       const id = e.target.dataset.id;
       const nombre = e.target.dataset.nombre;
+      const precio = parseFloat(e.target.dataset.precio) || 0;
       const cantidadActual = parseInt(e.target.dataset.cantidad,10) || 0;
-      agregarAlCarrito({id, nombre, cantidadActual});
+      agregarAlCarrito({id, nombre, precio, cantidadActual});
     }
   });
 
@@ -105,16 +106,23 @@ async function initApp(){
       if(val > CART[idx].cantidadActual) val = CART[idx].cantidadActual;
       CART[idx].descontar = val;
       e.target.value = val;
+      // Recalcular total
+      View.renderCart(CART);
     }
   });
 
   document.getElementById('applyDiscount').addEventListener('click', async ()=>{
     if(CART.length === 0){ alert('Carrito vacío'); return; }
-    if(!confirm('¿Aplicar los descuentos seleccionados?')) return;
+    
+    const total = CART.reduce((sum, item) => sum + (item.precio * item.descontar), 0);
+    const mensaje = `¿Procesar compra por un total de $${total.toFixed(2)}?`;
+    
+    if(!confirm(mensaje)) return;
+    
     const payload = CART.map(i=>({id:i.id, descontar:i.descontar}));
     const res = await Model.descontarCarrito(payload);
     if(res.status === 'ok'){
-      alert(res.message || 'Inventario actualizado');
+      alert(`Compra procesada exitosamente!\nTotal: $${total.toFixed(2)}\n${res.message || 'Inventario actualizado'}`);
       CART = [];
       View.updateCartCount(0);
       cargarProductos();
@@ -122,7 +130,7 @@ async function initApp(){
       const modal = bootstrap.Modal.getInstance(modalEl);
       modal.hide();
     } else {
-      alert(res.error || 'Error al actualizar inventario');
+      alert(res.error || 'Error al procesar la compra');
     }
   });
 
@@ -156,9 +164,13 @@ async function cargarProductos(){
   const productos = await Model.listarProductos();
   if(Array.isArray(productos)) {
     View.renderProducts(productos);
+    // Actualizar precios y cantidades en el carrito
     for(const p of productos){
       const idx = CART.findIndex(c=> c.id == p.id);
-      if(idx >= 0) CART[idx].cantidadActual = parseInt(p.cantidad,10);
+      if(idx >= 0) {
+        CART[idx].cantidadActual = parseInt(p.cantidad,10);
+        CART[idx].precio = parseFloat(p.precio);
+      }
     }
     View.updateCartCount(CART.length);
   }
@@ -174,7 +186,13 @@ function agregarAlCarrito(item){
   if(idx >= 0){
     if(CART[idx].descontar < item.cantidadActual) CART[idx].descontar++;
   } else {
-    CART.push({ id: item.id, nombre: item.nombre, cantidadActual: item.cantidadActual, descontar: 1 });
+    CART.push({ 
+      id: item.id, 
+      nombre: item.nombre, 
+      precio: item.precio,
+      cantidadActual: item.cantidadActual, 
+      descontar: 1 
+    });
   }
   View.updateCartCount(CART.length);
 }
