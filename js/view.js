@@ -11,7 +11,11 @@ const View = {
         <td>
           <button class="btn btn-sm btn-warning edit-product" data-id="${p.id}">Editar</button>
           <button class="btn btn-sm btn-danger delete-product" data-id="${p.id}">Eliminar</button>
-          <button class="btn btn-sm btn-outline-primary ms-1 add-cart" data-id="${p.id}" data-cantidad="${p.cantidad}" data-nombre="${p.nombre}">Descontar</button>
+          <button class="btn btn-sm btn-outline-primary ms-1 add-cart" 
+                  data-id="${p.id}" 
+                  data-cantidad="${p.cantidad}" 
+                  data-precio="${p.precio}"
+                  data-nombre="${p.nombre}">Agregar al Carrito</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -62,16 +66,48 @@ const View = {
 
   renderCart(cart){
     const tbody = document.querySelector('#cartTable tbody');
+    const carritoVacio = document.getElementById('carritoVacio');
+    const totalPagar = document.getElementById('totalPagar');
+    
+    if(cart.length === 0) {
+      tbody.innerHTML = '';
+      if(carritoVacio) carritoVacio.style.display = 'block';
+      if(totalPagar) totalPagar.textContent = '$0.00';
+      return;
+    }
+    
+    if(carritoVacio) carritoVacio.style.display = 'none';
     tbody.innerHTML = '';
+    
+    let total = 0;
+    
     cart.forEach((item, idx)=>{
+      const subtotal = item.precio * item.descontar;
+      total += subtotal;
+      
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${item.nombre}</td>
-        <td>${item.cantidadActual}</td>
-        <td><input class="form-control form-control-sm qty-descontar" data-idx="${idx}" type="number" min="1" max="${item.cantidadActual}" value="${item.descontar}"></td>
-        <td><button class="btn btn-sm btn-danger remove-cart" data-idx="${idx}">Quitar</button></td>
+        <td>$${parseFloat(item.precio).toFixed(2)}</td>
+        <td>
+          <input class="form-control form-control-sm qty-descontar" 
+                 data-idx="${idx}" 
+                 type="number" 
+                 min="1" 
+                 max="${item.cantidadActual}" 
+                 value="${item.descontar}"
+                 style="width: 80px;">
+        </td>
+        <td>$${subtotal.toFixed(2)}</td>
+        <td>
+          <button class="btn btn-sm btn-danger remove-cart" data-idx="${idx}">Quitar</button>
+        </td>
       `;
       tbody.appendChild(tr);
     });
+    
+    if(totalPagar) {
+      totalPagar.textContent = `$${total.toFixed(2)}`;
+    }
   }
 };
